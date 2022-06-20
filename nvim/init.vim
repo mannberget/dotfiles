@@ -1,17 +1,17 @@
 " #### VIM-PLUG ####
 
-call plug#begin()
-" The default plugin directory will be as follows:
-"   - Neovim (Linux/macOS/Windows): stdpath('data') . '/plugged'
+set nocompatible
 
+call plug#begin()
 
 Plug 'ellisonleao/gruvbox.nvim'
-" Plug 'vim-airline/vim-airline'
-" Plug 'vim-airline/vim-airline-themes'
+Plug 'sheerun/vim-polyglot'
 Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 " Install vim-plug if not found
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -33,24 +33,15 @@ silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
 set background=dark
 colorscheme gruvbox
 
+" Enable syntax and plugins (for netrw)
+syntax enable
+filetype plugin on
+set number
+set laststatus=2            " Enable on all tabs
+set t_Co=256                " Use 256 colors
 
-" Syntastic
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%*
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
 
-" AirLine
-" set laststatus=2            " Enable on all tabs
-" set t_Co=256                " Use 256 colors
-" let g:airline_theme='base16_gruvbox_dark_hard'
-
-" Lightline config
-
-"add cocstatus into lightline
+"Add cocstatus into lightline
 let g:lightline = {
 \ 'colorscheme': 'wombat',
 \ 'active': {
@@ -64,17 +55,8 @@ let g:lightline = {
 
 autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
-
-set nocompatible
-
-" Enable syntax and plugins (for netrw)
-syntax enable
-filetype plugin on
-set number
-
-
 " Create the `tags` file (may need to install ctags first)
-command! MakeTags !ctags -R .
+" command! MakeTags !ctags -R .
 
 " Enables:
 " - Use ^] to jump to tag under cursor
@@ -104,13 +86,17 @@ set ignorecase              " Case insensitive
 set visualbell              " No noise
 set mouse=a                 " Enable Mouse
 set hlsearch                " Highlight search
-set wildmenu                " Display all matching files when we tab complete
+"set wildmenu                " Display all matching files when we tab complete
 " set wildmode=longest,list   " Get bash-like tab completion
 
+" ######################## CUSTOM KEYBINDINGS ####################
 "This unsets the "last search pattern" register by hitting escape
+
 nnoremap <ESC> :noh<CR>:<backspace>
 " Let us "go to buffer" prompting us to choose after listing.
 nnoremap gb :buffers<CR>:buffer<Space>
+
+nnoremap <C-p> :GFiles<Cr>
 
 " Jump to the last position when reopening a file
 if has("autocmd")
@@ -188,13 +174,15 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Use K to show documentation in preview window.
-nnoremap <silent> K :call ShowDocumentation()<CR>
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
-function! ShowDocumentation()
-  if CocAction('hasProvider', 'hover')
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
     call CocActionAsync('doHover')
   else
-    call feedkeys('K', 'in')
+    execute '!' . &keywordprg . " " . expand('<cword>')
   endif
 endfunction
 
