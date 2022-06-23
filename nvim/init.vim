@@ -1,10 +1,23 @@
+if (empty($TMUX))
+  if (has("nvim"))
+    "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
+    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  endif
+  "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
+  "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
+  " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
+  if (has("termguicolors"))
+    set termguicolors
+  endif
+endif
+
 " #### VIM-PLUG ####
 
 set nocompatible
 
 call plug#begin()
 
-Plug 'ellisonleao/gruvbox.nvim'
+Plug 'morhetz/gruvbox'
 Plug 'sheerun/vim-polyglot'
 Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'
@@ -12,6 +25,7 @@ Plug 'tpope/vim-repeat'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'preservim/nerdcommenter'
 
 " Install vim-plug if not found
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -30,11 +44,13 @@ call plug#end()
 silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
 
 " #### General Settings ####
-set background=dark
+set background=dark " or light if you want light mode
+syntax enable
 colorscheme gruvbox
+set scrolloff=6
+set nowrap
 
 " Enable syntax and plugins (for netrw)
-syntax enable
 filetype plugin on
 set number
 set laststatus=2            " Enable on all tabs
@@ -43,7 +59,7 @@ set t_Co=256                " Use 256 colors
 
 "Add cocstatus into lightline
 let g:lightline = {
-\ 'colorscheme': 'wombat',
+\ 'colorscheme': 'Tomorrow_Night_Eighties',
 \ 'active': {
 \   'left': [ [ 'mode', 'paste' ],
 \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
@@ -65,7 +81,6 @@ autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
 " Tweaks for browsing
 let g:netrw_banner=0        " disable annoying banner
-" let g:netrw_browse_split=4  " open in prior window
 let g:netrw_winsize = 25    " Explore is 25% of screen size
 let g:netrw_altv=1          " open splits to the right
 let g:netrw_liststyle=3     " tree view
@@ -80,7 +95,7 @@ set backspace=indent,eol,start
 " Tabbing
 set shiftwidth=4 tabstop=4 softtabstop=4 expandtab autoindent smartindent
 
-let mapleader = ","         " Set leaderkey to comma
+let mapleader = " "         " Set leaderkey to comma
 set path+=**                " Provides tab-completion for all file-related tasks
 set ignorecase              " Case insensitive
 set visualbell              " No noise
@@ -274,3 +289,7 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+ 
+" Enable nice scrolling (may need terminal emulator support)
+nnoremap <C-S-j> 2<C-e>2j
+nnoremap <C-S-k> 2<C-y>2k
