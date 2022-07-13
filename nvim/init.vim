@@ -113,6 +113,8 @@ nnoremap gb :buffers<CR>:buffer<Space>
 
 nnoremap <C-p> :GFiles<Cr>
 
+nnoremap <C-b> :Buffers<Cr>
+
 " Jump to the last position when reopening a file
 if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
