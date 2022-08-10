@@ -26,6 +26,8 @@ opt.expandtab = true
 opt.hlsearch = true                 -- highlight searches
 opt.incsearch = true
 
+opt.scrolloff = 6
+opt.laststatus = 2
 
 opt.splitbelow = true               -- put new windows below current
 opt.splitright = true               -- put new windows right of current
@@ -49,11 +51,29 @@ g.netrw_liststyle=3                 -- tree view
 
 
 -------------------- PLUGINS -------------------
-cmd 'packadd paq-nvim'               -- load the package manager
 
-local paq = require('paq-nvim').paq  -- a convenient alias
+local packer = require('packer').startup(function(use)
+    -- Packer can manage itself
+    use 'wbthomason/packer.nvim'
 
-paq {'nvim-treesitter/nvim-treesitter'}
+    use 'jacoborus/tender.vim'
+
+    use 'nvim-treesitter/nvim-treesitter'
+
+    use {'neoclide/coc.nvim', branch = 'release'}
+
+    use {'nvim-telescope/telescope.nvim', tag = '0.1.0',
+        requires = { {'nvim-lua/plenary.nvim'} }
+    }
+
+    use {
+      'nvim-lualine/lualine.nvim',
+      requires = { 'kyazdani42/nvim-web-devicons', opt = true }
+    }
+
+end)
+
+cmd 'colorscheme tender'
 
 -------------------- TREE-SITTER ----------------
 require'nvim-treesitter.configs'.setup {
@@ -72,14 +92,49 @@ require'nvim-treesitter.configs'.setup {
 
     -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
     -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+-- Using this option may slow down your editor, and you may see some duplicate highlights.
     -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
   },
 }
--------------------- MAPPINGS -------------------
 
+-------------------- COC ------------------------
+
+opt.encoding = "utf-8"
+opt.hidden = true
+opt.cmdheight = 2
+opt.updatetime = 300    
+opt.signcolumn = "number"
+
+
+-------------------- TELESCOPE  -----------------
+require('telescope').setup{
+  defaults = {
+    mappings = {
+      i = {
+        -- map actions.which_key to <C-h> (default: <C-/>)
+        -- actions.which_key shows the mappings for your picker,
+        -- e.g. git_{create, delete, ...}_branch for the git_branches picker
+        ["<C-h>"] = "which_key"
+      }
+    }
+  }
+}
+
+map('n', '<leader>ff', "<cmd>lua require('telescope.builtin').find_files()<cr>") -- telescope find files
+map('n', '<leader>fb', "<cmd>lua require('telescope.builtin').buffers()<cr>") -- telescope find files
+
+
+-------------------- LUALINE --------------------
+require('lualine').setup {
+    options = {
+        icons_enabled = false,
+        theme = 'wombat'
+    }
+}
+
+-------------------- MAPPINGS -------------------
 map('n', '<leader>o', 'o<Esc>')                     -- insert newline from normal mode
-map('n', '<leader>e', ':Vexplore<CR>')              -- show file explorer
+map('n', '<leader>e', '<cmd>Vexplore<CR>')              -- show file explorer
 
 
