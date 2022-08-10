@@ -60,23 +60,28 @@ g.newrw_winsize = 25                -- explore is 25% of screen
 g.netrw_altv = 1                    -- open splits to right
 g.netrw_liststyle=3                 -- tree view
 
-
-
 -------------------- PLUGINS -------------------
 
 local packer = require('packer').startup(function(use)
     -- Packer can manage itself
     use 'wbthomason/packer.nvim'
 
-    use 'jacoborus/tender.vim'
+    -- use 'jacoborus/tender.vim'
+    -- use 'w0ng/vim-hybrid'
+    use 'sainnhe/sonokai'
 
     use 'nvim-treesitter/nvim-treesitter'
 
-    use {'neoclide/coc.nvim', branch = 'release'}
+    use {
+        'neoclide/coc.nvim',
+        branch = 'release'
+    }
 
     use {"terrortylor/nvim-comment"}
 
-    use {'nvim-telescope/telescope.nvim', tag = '0.1.0',
+    use {
+        'nvim-telescope/telescope.nvim',
+        tag = '0.1.0',
         requires = { {'nvim-lua/plenary.nvim'} }
     }
 
@@ -87,8 +92,9 @@ local packer = require('packer').startup(function(use)
 
 end)
 
-cmd 'colorscheme tender'
-
+-- cmd 'colorscheme tender'
+-- cmd 'colorscheme hybrid'
+cmd 'colorscheme sonokai'
 -------------------- TREE-SITTER ----------------
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all"
@@ -111,21 +117,18 @@ require'nvim-treesitter.configs'.setup {
     additional_vim_regex_highlighting = false,
   },
 }
-
 -------------------- COC ------------------------
 opt.encoding = "utf-8"
 opt.hidden = true
 opt.cmdheight = 2
 opt.updatetime = 300    
 opt.signcolumn = "number"
-
 -------------------- NVIM COMMENT ---------------
 require('nvim_comment').setup {
     line_mapping = "<leader>cc",
     operator_mapping = "<leader>c"
     --comment_chunk_text_object = "",
 }
-
 -------------------- TELESCOPE  -----------------
 require('telescope').setup{
   defaults = {
@@ -142,7 +145,6 @@ require('telescope').setup{
 
 map('n', '<leader>ff', "<cmd>lua require('telescope.builtin').find_files()<cr>") -- telescope find files
 map('n', '<leader>fb', "<cmd>lua require('telescope.builtin').buffers()<cr>") -- telescope find files
-
 -------------------- LUALINE --------------------
 require('lualine').setup {
     options = {
@@ -150,9 +152,10 @@ require('lualine').setup {
         theme = 'seoul256'
     }
 }
-
 -------------------- MAPPINGS -------------------
 map('n', '<leader>o', 'o<Esc>')                 -- insert newline from normal mode
 map('n', '<leader>O', 'O<Esc>')                 -- insert newline from normal mode
-map('n', '<leader>e', '<cmd>Vexplore<CR>')      -- show file explorer
+map('n', '<leader>e', '<cmd>Explore<CR>')       -- show file explorer
 
+map('n', '<C-j>', '3<C-e>3j')                   -- fast scrolling
+map('n', '<C-k>', '3<C-y>3k')                   -- fast scrolling
