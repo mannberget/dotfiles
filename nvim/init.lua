@@ -19,9 +19,9 @@ opt.number = true                   -- show line numbers
 
 opt.visualbell = true
 
-opt.tabstop = 4                     -- number of spaces tabs count for
-opt.softtabstop = 4
-opt.shiftwidth = 4                  -- size of an indent
+opt.tabstop = 2                     -- number of spaces tabs count for
+opt.softtabstop = 2
+opt.shiftwidth = 2                  -- size of an indent
 opt.expandtab = true
 
 opt.hlsearch = true                 -- highlight searches
@@ -123,6 +123,24 @@ opt.hidden = true
 opt.cmdheight = 2
 opt.updatetime = 300    
 opt.signcolumn = "number"
+
+-- enable tab to trigger completion
+cmd [[
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1):
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+]]
+
 -------------------- NVIM COMMENT ---------------
 require('nvim_comment').setup {
     line_mapping = "<leader>cc",
@@ -159,3 +177,6 @@ map('n', '<leader>e', '<cmd>Explore<CR>')       -- show file explorer
 
 map('n', '<C-j>', '3<C-e>3j')                   -- fast scrolling
 map('n', '<C-k>', '3<C-y>3k')                   -- fast scrolling
+
+map('n', '<C-h>', '<C-w>h')                   -- fast scrolling
+map('n', '<C-l>', '<C-w>l')                   -- fast scrolling
