@@ -139,6 +139,10 @@ function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+nmap <leader>rn <Plug>(coc-rename)
 ]]
 
 -------------------- NVIM COMMENT ---------------
@@ -178,5 +182,8 @@ map('n', '<leader>e', '<cmd>Explore<CR>')       -- show file explorer
 map('n', '<C-j>', '3<C-e>3j')                   -- fast scrolling
 map('n', '<C-k>', '3<C-y>3k')                   -- fast scrolling
 
-map('n', '<C-h>', '<C-w>h')                   -- fast scrolling
-map('n', '<C-l>', '<C-w>l')                   -- fast scrolling
+map('n', '<C-h>', '<C-w>h')                     -- fast window switch
+map('n', '<C-l>', '<C-w>l')                     -- fast window switch
+
+map('n', '<leader>y', '"+y')                   -- copy to clipboard
+map('v', '<leader>y', '"+y')                   -- copy to clipboard
