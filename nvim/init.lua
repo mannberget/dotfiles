@@ -11,9 +11,7 @@ local function map(mode, lhs, rhs, opts)
 end
 
 -------------------- OPTIONS --------------------
-
 opt.guicursor = ""
-
 
 opt.number = true                   -- show line numbers
 
@@ -41,10 +39,16 @@ opt.wrap = false
 
 opt.mouse = "a"
 
+opt.encoding = "utf-8"
+
+opt.cmdheight = 2
+
 g.mapleader = " "
 
 -- enable undos between sessions
 cmd([[set undofile]])
+
+cmd([[set colorcolumn=100]])
 
 cmd [[
 if has("autocmd")
@@ -60,6 +64,15 @@ if has("autocmd")
 endif
 ]]
 
+
+-- enable conda environment
+cmd [[
+if has('nvim') && !empty($CONDA_PREFIX)
+  let g:python3_host_prog = $CONDA_PREFIX . '/bin/python'
+endif
+]]
+
+
 -- netrw settings
 g.netrw_banner = 0                  -- disable banner
 g.newrw_winsize = 25                -- explore is 25% of screen
@@ -69,46 +82,59 @@ g.netrw_liststyle=3                 -- tree view
 -------------------- PLUGINS -------------------
 
 local packer = require('packer').startup(function(use)
-    -- Packer can manage itself
+    -- packer
     use 'wbthomason/packer.nvim'
 
+    -- theme
     use 'sainnhe/sonokai'
 
+    -- better syntax highlights
     use 'nvim-treesitter/nvim-treesitter'
 
-    -- use {
-    --     'neoclide/coc.nvim',
-    --     branch = 'release'
-    -- }
-
+    -- autocommenter
     use {"terrortylor/nvim-comment"}
 
+    -- fuzzy search files
     use {
         'nvim-telescope/telescope.nvim',
         tag = '0.1.0',
         requires = { {'nvim-lua/plenary.nvim'} }
     }
 
+    -- simple statusbar
     use {
       'nvim-lualine/lualine.nvim',
       requires = { 'kyazdani42/nvim-web-devicons', opt = true }
     }
 
+    -- sending lines to tmux second window (REPL)
     use 'jpalardy/vim-slime'
 
-    -- use 'JuliaEditorSupport/julia-vim'
+    -- julia support
+    use 'JuliaEditorSupport/julia-vim'
 
+    -- lsp / autocomplete / snippets
     use 'neovim/nvim-lspconfig' -- Collection of configurations for built-in LSP client
     use 'hrsh7th/nvim-cmp'      -- Autocompletion plugin
     use 'hrsh7th/cmp-nvim-lsp'  -- LSP source for nvim-cmp
-
     use({"L3MON4D3/LuaSnip", tag = "v<CurrentMajor>.*"})
 
 end)
 
 -- cmd 'colorscheme tender'
 -- cmd 'colorscheme hybrid'
-cmd 'colorscheme sonokai'
+
+cmd [[
+colorscheme sonokai
+hi Normal guibg=none ctermbg=none
+hi LineNr guibg=none ctermbg=none
+hi Folded guibg=none ctermbg=none
+hi NonText guibg=none ctermbg=none
+hi SpecialKey guibg=none ctermbg=none
+hi VertSplit guibg=none ctermbg=none
+hi SignColumn guibg=none ctermbg=none
+hi EndOfBuffer guibg=none ctermbg=none
+]]
 -------------------- TREE-SITTER ----------------
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all"
@@ -131,33 +157,6 @@ require'nvim-treesitter.configs'.setup {
     additional_vim_regex_highlighting = false,
   },
 }
--------------------- COC ------------------------
-opt.encoding = "utf-8"
--- opt.hidden = true
-opt.cmdheight = 2
--- opt.updatetime = 300    
--- opt.signcolumn = "number"
-
--- -- enable tab to trigger completion
--- cmd [[
--- inoremap <silent><expr> <TAB>
---       \ coc#pum#visible() ? coc#pum#next(1):
---       \ CheckBackspace() ? "\<Tab>" :
---       \ coc#refresh()
--- inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
---
--- inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
---                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
---
--- function! CheckBackspace() abort
---   let col = col('.') - 1
---   return !col || getline('.')[col - 1]  =~# '\s'
--- endfunction
---
--- autocmd CursorHold * silent call CocActionAsync('highlight')
---
--- nmap <leader>rn <Plug>(coc-rename)
--- ]]
 
 -------------------- NVIM COMMENT ---------------
 require('nvim_comment').setup {
@@ -170,9 +169,6 @@ require('telescope').setup{
   defaults = {
     mappings = {
       i = {
-        -- map actions.which_key to <C-h> (default: <C-/>)
-        -- actions.which_key shows the mappings for your picker,
-        -- e.g. git_{create, delete, ...}_branch for the git_branches picker
         ["<C-h>"] = "which_key"
       }
     }
@@ -225,7 +221,7 @@ cmp.setup({
         end, { 'i', 's' }),
         ['<C-f>'] = cmp.mapping.scroll_docs( 4),
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-s>'] = cmp.mapping.complete(),
         ['<C-e>'] = cmp.mapping.abort(),
         ['<CR>'] = cmp.mapping.confirm({ select = false }),
     }),
@@ -234,9 +230,10 @@ cmp.setup({
         { name = 'luasnip' },
     },
     {
+        { name = 'path' },
         { name = 'buffer' },
     }),
-    completion = {keyword_length = 3},
+    completion = {keyword_length = 2},
     formatting = {
         format = function(entry, vim_item)
             vim_item.menu = source_mapping[entry.source.name]
@@ -267,8 +264,8 @@ local on_attach = function(client, bufnr)
   vim.keymap.set('n', '<leader>k', vim.lsp.buf.hover, bufopts)
   vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
   vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
-  vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, bufopts)
-  -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
+  vim.keymap.set('n', '<leader>fo', vim.lsp.buf.formatting, bufopts)
+  vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, bufopts)
   -- vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, bufopts)
   -- vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
   -- vim.keymap.set('n', '<space>wl', function()
@@ -288,6 +285,11 @@ require('lspconfig')['rust_analyzer'].setup{
     settings = {
       ["rust-analyzer"] = {}
     }
+}
+
+require('lspconfig')['pylsp'].setup{
+    on_attach = on_attach,
+    capabilities = capabilities
 }
 
 require('lspconfig')['julials'].setup{
@@ -310,6 +312,7 @@ require('lspconfig')['julials'].setup{
 map('n', '<leader>o', 'o<Esc>')                 -- insert newline from normal mode
 map('n', '<leader>O', 'O<Esc>')                 -- insert newline from normal mode
 map('n', '<leader>e', '<cmd>Explore<CR>')       -- show file explorer
+map('n', '<leader>E', '<cmd>Vexplore<CR>')       -- show file explorer
 
 map('n', '<C-j>', '3<C-e>3j')                   -- fast scrolling
 map('n', '<C-k>', '3<C-y>3k')                   -- fast scrolling
@@ -317,5 +320,18 @@ map('n', '<C-k>', '3<C-y>3k')                   -- fast scrolling
 map('n', '<C-h>', '<C-w>h')                     -- fast window switch
 map('n', '<C-l>', '<C-w>l')                     -- fast window switch
 
-map('n', '<leader>y', '"+y')                   -- copy to clipboard
-map('v', '<leader>y', '"+y')                   -- copy to clipboard
+map('n', '<leader>y', '"+y')                    -- copy to clipboard
+map('v', '<leader>y', '"+y')                    -- copy to clipboard
+
+-- window management
+map("n", "<leader>sv", "<C-w>v")                -- split window vertically
+map("n", "<leader>sh", "<C-w>s")                -- split window horizontally
+map("n", "<leader>se", "<C-w>=")                -- make split windows equal width & height
+map("n", "<leader>sx", ":close<CR>")            -- close current split window
+
+
+-- delete single character without copying into register
+map("n", "x", '"_x')
+
+-- list current changes per file with diff preview ["gs" for git status]
+map("n", "<leader>gs", "<cmd>Telescope git_status<cr>")
