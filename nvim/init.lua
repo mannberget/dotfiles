@@ -289,7 +289,15 @@ require('lspconfig')['rust_analyzer'].setup{
 
 require('lspconfig')['pylsp'].setup{
     on_attach = on_attach,
-    capabilities = capabilities
+    capabilities = capabilities,
+    settings = {
+      pylsp = {
+        plugins = {
+          autopep8 = {enabled = true},
+          yapf = {enabled = false}
+        }
+      }
+    }
 }
 
 require('lspconfig')['julials'].setup{
