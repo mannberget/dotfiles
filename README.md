@@ -18,7 +18,10 @@ git clone --depth 1 https://github.com/wbthomason/packer.nvim\
  ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 ```
 
-Then install pylsp (globally)
+Then install pylsp
+
+`conda install -c conda-forge python-lsp-server` 
+install in your project environment
 
 `pip install python-language-server[all]`, pylsp might need to be added to the `$PATH` variable
 
