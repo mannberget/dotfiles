@@ -21,3 +21,6 @@ git clone --depth 1 https://github.com/wbthomason/packer.nvim\
 Then install pylsp (globally)
 
 `pip install python-language-server[all]`, pylsp might need to be added to the `$PATH` variable
+
+## To swap caps and escape on ubuntu (22)`
+`dconf write /org/gnome/desktop/input-sources/xkb-options "['caps:swapescape']"`
